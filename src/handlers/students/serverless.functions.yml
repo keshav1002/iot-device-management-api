@@ -1,0 +1,32 @@
+functions:
+  getStudent:
+    handler: src/handlers/students/get.handler
+    name: ${self:service}-${sls:stage}-students-get
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt StudentsTable.Arn
+    environment:
+      STUDENTS_TABLE: !Ref StudentsTable
+    events:
+      - http:
+          path: /students/{id}
+          method: GET
+          cors: true
+
+  putStudent:
+    handler: src/handlers/students/put.handler
+    name: ${self:service}-${sls:stage}-students-put
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt StudentsTable.Arn
+    environment:
+      STUDENTS_TABLE: !Ref StudentsTable
+    events:
+      - http:
+          path: /students
+          method: POST
+          cors: true

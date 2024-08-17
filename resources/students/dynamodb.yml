@@ -1,0 +1,45 @@
+resources:
+  Resources:
+    StudentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-students
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: StudentId
+            AttributeType: S
+          - AttributeName: LastModifiedDate
+            AttributeType: S
+          - AttributeName: Course
+            AttributeType: S
+          - AttributeName: isDeleted
+            AttributeType: S
+        KeySchema:
+          - AttributeName: StudentId
+            KeyType: HASH
+          - AttributeName: LastModifiedDate
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: StudentByCourse
+            KeySchema:
+              - AttributeName: Course
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        LocalSecondaryIndexes:
+          - IndexName: StudentIsDeleted
+            KeySchema:
+              - AttributeName: StudentId
+                KeyType: HASH
+              - AttributeName: isDeleted
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+  Outputs:
+    StudentsTableName:
+      Description: 'Students Table Name'
+      Value: !Ref StudentsTable
+    StudentsTableArn:
+      Description: 'Students Table Arn'
+      Value: !GetAtt StudentsTable.Arn

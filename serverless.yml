@@ -1,5 +1,4 @@
 service: record-management
-frameworkVersion: '4.1.22'
 configValidationMode: error
 
 custom:
@@ -23,11 +22,15 @@ provider:
       stage: ${sls:stage}
 
 functions:
-  - ${file(./src/handlers/student/serverless.functions.yml):functions}
+  - ${file(./src/handlers/students/serverless.functions.yml):functions}
+
+resources:
+  - ${file(./resources/students/dynamodb.yml):resources}
 
 plugins:
   - serverless-deployment-bucket
   - serverless-iam-roles-per-function
+  - serverless-offline
 
 package:
   individually: true
