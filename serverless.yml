@@ -1,0 +1,33 @@
+service: record-management
+frameworkVersion: '4.1.22'
+configValidationMode: error
+
+custom:
+  stage: ${file(config/stages/${sls:stage}.yml)}
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, self:custom.stage.region}
+  memorySize: ${self:custom.stage.lambda.memorySize, 128}
+  timeout: ${self:custom.stage.lambda.timeout, 10}
+  logRetentionInDays: ${self:custom.stage.lambda.logRetention, 1}
+  deploymentBucket:
+    name: com.serverless.${aws:accountId}.${aws:region}.deploys
+    blockPublicAccess: true
+    skipPolicySetup: true
+    serverSideEncryption: AES256
+    tags:
+      service: ${self:service}
+      stage: ${sls:stage}
+
+functions:
+  - ${file(./src/handlers/student/serverless.functions.yml):functions}
+
+plugins:
+  - serverless-deployment-bucket
+  - serverless-iam-roles-per-function
+
+package:
+  individually: true

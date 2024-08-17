@@ -1,0 +1,4 @@
+functions:
+  student:
+    handler: src/handlers/student.handler
+    name: ${self:service}-${sls:stage}-student
