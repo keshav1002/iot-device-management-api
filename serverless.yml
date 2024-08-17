@@ -1,4 +1,4 @@
-service: record-management
+service: iot-device-management
 configValidationMode: error
 
 custom:
@@ -22,10 +22,10 @@ provider:
       stage: ${sls:stage}
 
 functions:
-  - ${file(./src/handlers/students/serverless.functions.yml):functions}
+  - ${file(./src/handlers/sensors/serverless.functions.yml):functions}
 
 resources:
-  - ${file(./resources/students/dynamodb.yml):resources}
+  - ${file(./resources/sensors/dynamodb.yml):resources}
 
 plugins:
   - serverless-deployment-bucket

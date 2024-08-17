@@ -6,9 +6,9 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
 
-const studentsTable = process.env.IS_OFFLINE
-  ? 'record-management-dev-students'
-  : process.env.STUDENTS_TABLE
+const sensorsTable = process.env.IS_OFFLINE
+  ? 'iot-device-management-dev-sensors'
+  : process.env.SENSORS_TABLE
 
 const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
@@ -21,21 +21,17 @@ const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResul
         },
       }
     }
-    const studentId = event.pathParameters.id
+    const deviceId = event.pathParameters.id
 
     const command = new QueryCommand({
-      TableName: studentsTable,
-      IndexName: 'StudentIsDeleted',
-      KeyConditionExpression: '#StudentId = :StudentId AND #isDeleted = :isDeleted',
-      ExpressionAttributeNames: {
-        '#StudentId': 'StudentId',
-        '#isDeleted': 'isDeleted',
-      },
+      TableName: sensorsTable,
+      KeyConditionExpression: 'PK = :PK and begins_with(SK, :prefix)',
       ExpressionAttributeValues: {
-        ':StudentId': studentId,
-        ':isDeleted': 'no',
+        ':PK': `DEVICE#${deviceId}`,
+        ':prefix': 'READING',
       },
-      ScanIndexForward: false,
+      ScanIndexForward: false, // Descending Order
+      Limit: 10,
     })
 
     const result = await docClient.send(command)
@@ -45,7 +41,7 @@ const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResul
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ student: result.Items }),
+      body: JSON.stringify({ sensors: result.Items }),
     }
   } catch (error) {
     return {

@@ -2,15 +2,15 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-import { Students } from 'students'
+import { Devices } from 'devices'
 import { randomUUID } from 'crypto'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
 
-const studentsTable = process.env.IS_OFFLINE
-  ? 'record-management-dev-students'
-  : process.env.STUDENTS_TABLE
+const sensorsTable = process.env.IS_OFFLINE
+  ? 'iot-device-management-dev-sensors'
+  : process.env.SENSORS_TABLE
 
 const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
@@ -26,19 +26,16 @@ const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResul
       }
     }
 
-    const studentId = randomUUID()
-    const createdAt = new Date().toISOString()
+    const deviceId = randomUUID()
 
     const command = new PutCommand({
-      TableName: studentsTable,
+      TableName: sensorsTable,
       Item: {
-        StudentId: studentId,
-        LastModifiedDate: createdAt,
-        isDeleted: 'no',
-        StudentName: body.StudentName.trim(),
-        Course: body.Course,
-        Address: body.Address,
-        TelNo: body.TelNo,
+        PK: `DEVICE#${deviceId}`,
+        SK: `#DETAILS#${deviceId}`,
+        DeviceId: deviceId,
+        DeviceName: body.DeviceName,
+        DeviceLocation: body.DeviceLocation,
       },
     })
 
@@ -50,8 +47,7 @@ const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResul
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        studentId,
-        createdAt,
+        deviceId,
       }),
     }
   } catch (error) {
@@ -65,15 +61,15 @@ const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResul
   }
 }
 
-const getBodyFromEvent = (event: APIGatewayProxyEvent): Students.Student | undefined => {
+const getBodyFromEvent = (event: APIGatewayProxyEvent): Devices.Device | undefined => {
   if (!event.body) {
     return undefined
   }
   try {
     if (event.isBase64Encoded === true) {
-      return JSON.parse(Buffer.from(event.body, 'base64').toString()) as Students.Student
+      return JSON.parse(Buffer.from(event.body, 'base64').toString()) as Devices.Device
     } else {
-      return JSON.parse(event.body) as Students.Student
+      return JSON.parse(event.body) as Devices.Device
     }
   } catch (error) {
     console.error(error)
