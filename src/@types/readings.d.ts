@@ -5,5 +5,9 @@ declare module 'readings' {
       TTL: number
       ErrorStatus?: string
     }
+
+    interface ErrorStatus {
+      ErrorStatus: string
+    }
   }
 }

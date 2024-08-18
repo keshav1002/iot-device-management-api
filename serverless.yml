@@ -4,6 +4,15 @@ configValidationMode: error
 custom:
   stage: ${file(config/stages/${sls:stage}.yml)}
 
+build:
+  esbuild:
+    sourcemap: false
+    bundle: true
+    minify: false
+    keepNames: false
+    exclude:
+    - '@aws-sdk'
+
 provider:
   name: aws
   runtime: nodejs20.x

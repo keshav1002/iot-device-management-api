@@ -1,56 +1,20 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-
-import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 
-const client = new DynamoDBClient({})
-const docClient = DynamoDBDocumentClient.from(client)
-
-const sensorsTable = process.env.IS_OFFLINE
-  ? 'iot-device-management-dev-sensors'
-  : process.env.SENSORS_TABLE
+import { getLatestDeviceReadingsByDeviceId } from '../../../controllers/readings'
+import { errorResponse, response } from '../../../shared/responses'
 
 const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
     if (!event?.pathParameters?.id) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Invalid payload' }),
-        headers: {
-          'content-type': 'application/json',
-        },
-      }
+      return errorResponse('Invalid payload', 400)
     }
     const deviceId = event.pathParameters.id
 
-    const command = new QueryCommand({
-      TableName: sensorsTable,
-      KeyConditionExpression: 'PK = :PK and begins_with(SK, :prefix)',
-      ExpressionAttributeValues: {
-        ':PK': `DEVICE#${deviceId}`,
-        ':prefix': 'READING',
-      },
-      ScanIndexForward: false, // Descending Order
-      Limit: 10,
-    })
+    const items = await getLatestDeviceReadingsByDeviceId({ deviceId })
 
-    const result = await docClient.send(command)
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ sensors: result.Items }),
-    }
+    return response({ readings: items }, 200)
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: (error as Error).message }),
-      headers: {
-        'content-type': 'application/json',
-      },
-    }
+    return errorResponse((error as Error).message)
   }
 }
 

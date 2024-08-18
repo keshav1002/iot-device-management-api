@@ -5,5 +5,8 @@ declare module 'devices' {
       DeviceName: string
       DeviceLocation: string
     }
+    interface DeviceId {
+      deviceId: string
+    }
   }
 }
