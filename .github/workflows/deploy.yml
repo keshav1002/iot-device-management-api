@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      promote:
+        description: 'Set to true to promote to production'
+        required: true
+        default: 'false'
 
 jobs:
   deploy:
@@ -31,10 +37,6 @@ jobs:
   promote-to-prod:
     needs: deploy
     runs-on: ubuntu-latest
-    inputs:
-      promote:
-        description: 'Promote to Prod'     
-        required: true
 
     steps:
       - name: Checkout code
