@@ -31,6 +31,10 @@ jobs:
   promote-to-prod:
     needs: deploy
     runs-on: ubuntu-latest
+    inputs:
+      promote:
+        description: 'Promote to Prod'     
+        required: true
 
     steps:
       - name: Checkout code
