@@ -2,15 +2,28 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 
 import { getLatestDeviceReadingsByDeviceId } from '../../../controllers/readings'
 import { errorResponse, response } from '../../../shared/responses'
+import { logger } from '../../../shared/logger'
 
-const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
+logger.appendPersistentKeys({
+  serviceName: 'sensors',
+  handler: 'getLatestDeviceReadings',
+})
+
+const main: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayProxyResult> => {
+  logger.addContext(context)
+  logger.info('Event', { event, env: process.env })
   try {
     if (!event?.pathParameters?.id) {
       return errorResponse('Invalid payload', 400)
     }
     const deviceId = event.pathParameters.id
 
+    const start = new Date().getTime()
+
     const items = await getLatestDeviceReadingsByDeviceId({ deviceId })
+
+    const end = new Date().getTime()
+    logger.info('Result', { duration: end - start })
 
     return response({ readings: items }, 200)
   } catch (error) {

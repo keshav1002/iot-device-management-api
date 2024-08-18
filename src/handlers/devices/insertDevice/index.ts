@@ -3,8 +3,16 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import { insertDevice } from '../../../controllers/devices'
 import { getDeviceBodyFromEvent } from '../../../shared/parser'
 import { errorResponse, response } from '../../../shared/responses'
+import { logger } from '../../../shared/logger'
 
-const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
+logger.appendPersistentKeys({
+  serviceName: 'sensors',
+  handler: 'insertDevice',
+})
+
+const main: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayProxyResult> => {
+  logger.addContext(context)
+  logger.info('Event', { event, env: process.env })
   try {
     const body = getDeviceBodyFromEvent(event)
 
@@ -12,7 +20,12 @@ const main: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResul
       return errorResponse('Invalid payload', 400)
     }
 
+    const start = new Date().getTime()
+
     const { deviceId } = await insertDevice(body)
+
+    const end = new Date().getTime()
+    logger.info('Result', { duration: end - start })
 
     return response({ deviceId }, 201)
   } catch (error) {
