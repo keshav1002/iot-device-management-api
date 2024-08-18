@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "sls offline start --reloadHandler",
+    "start": "serverless offline start --reloadHandler",
     "test:integration": "jest tests/integration",
     "test:unit": "jest tests/unit",
-    "test:unit:coverage": "jest --coverage tests/unit"
+    "test:unit:coverage": "jest --coverage tests/unit",
+    "deploy-dev": "serverless deploy --stage dev",
+    "deploy-prod": "serverless deploy --stage prod"
   },
   "keywords": [],
   "author": "",
