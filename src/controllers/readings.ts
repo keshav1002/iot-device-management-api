@@ -1,16 +1,13 @@
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 
 import { Devices } from 'devices'
 import { Readings } from 'readings'
 import { CONSTANTS } from '../shared/constants'
+import { DynamoDBConnector } from '../connector/dynamodb'
 
-const client = new DynamoDBClient({})
-const docClient = DynamoDBDocumentClient.from(client)
-
-const sensorsTable = process.env.IS_OFFLINE
-  ? 'iot-device-management-dev-sensors'
-  : process.env.SENSORS_TABLE
+const dynamoDbConnector = new DynamoDBConnector()
+const docClient = dynamoDbConnector.getClient()
+const sensorsTable = dynamoDbConnector.getSensorsTableName()
 
 export const getLatestDeviceReadingsByDeviceId = async (
   params: Devices.DeviceId,

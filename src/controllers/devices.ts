@@ -1,23 +1,14 @@
-import {
-  DeleteCommand,
-  DynamoDBDocumentClient,
-  PutCommand,
-  QueryCommand,
-  UpdateCommand,
-} from '@aws-sdk/lib-dynamodb'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DeleteCommand, PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { randomUUID } from 'crypto'
 
 import { Devices } from 'devices'
 import { CONSTANTS } from '../shared/constants'
 import { createUpdateExpressions } from '../shared/util'
+import { DynamoDBConnector } from '../connector/dynamodb'
 
-const client = new DynamoDBClient({})
-const docClient = DynamoDBDocumentClient.from(client)
-
-const sensorsTable = process.env.IS_OFFLINE
-  ? 'iot-device-management-dev-sensors'
-  : process.env.SENSORS_TABLE
+const dynamoDbConnector = new DynamoDBConnector()
+const docClient = dynamoDbConnector.getClient()
+const sensorsTable = dynamoDbConnector.getSensorsTableName()
 
 export const getDeviceByDeviceId = async (params: Devices.DeviceId): Promise<Devices.Device[]> => {
   const { deviceId } = params

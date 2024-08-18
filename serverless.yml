@@ -1,9 +1,6 @@
 service: iot-device-management
 configValidationMode: error
 
-custom:
-  stage: ${file(config/stages/${sls:stage}.yml)}
-
 build:
   esbuild:
     sourcemap: false
@@ -11,16 +8,13 @@ build:
     minify: false
     keepNames: false
     exclude:
-    - '@aws-sdk'
+      - '@aws-sdk'
 
 provider:
   name: aws
   runtime: nodejs20.x
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, self:custom.stage.region}
-  memorySize: ${self:custom.stage.lambda.memorySize, 128}
-  timeout: ${self:custom.stage.lambda.timeout, 10}
-  logRetentionInDays: ${self:custom.stage.lambda.logRetention, 1}
+  region: ${opt:region, 'ap-southeast-1'}
   deploymentBucket:
     name: com.serverless.${aws:accountId}.${aws:region}.deploys
     blockPublicAccess: true
