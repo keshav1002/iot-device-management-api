@@ -48,8 +48,11 @@ jobs:
           echo "Base URL: $base_url"
           echo "::set-output name=base_url::$base_url"
 
-      - name: Use base URL
-        run: echo "The base URL is ${{ steps.set_base_url.outputs.base_url }}"
+      - name: Run Integration Test
+        env:
+          INTEGRATION_TEST_BASE_URL: ${{ steps.set_base_url.outputs.base_url }}
+          INTEGRATION_TEST_STAGE: dev
+        run: npm run test:integration
 
   promote-to-prod:
     needs: deploy

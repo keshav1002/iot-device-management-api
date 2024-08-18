@@ -1,7 +1,9 @@
 import * as request from 'supertest'
 
-let testApiUrl = 'https://96r4s7t64i.execute-api.ap-southeast-1.amazonaws.com'
-let stage = 'dev'
+require('dotenv').config()
+
+let testApiUrl = process.env.INTEGRATION_TEST_BASE_URL
+let stage = process.env.INTEGRATION_TEST_STAGE
 
 describe('Test if device CRUD integration works correctly', () => {
   let testDeviceId = ''
