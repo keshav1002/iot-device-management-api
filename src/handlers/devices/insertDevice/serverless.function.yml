@@ -1,0 +1,16 @@
+functions:
+  insertDevice:
+    handler: src/handlers/devices/insertDevice/index.handler
+    name: ${self:service}-${sls:stage}-sensors-insertDevice
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt SensorsTable.Arn
+    environment:
+      SENSORS_TABLE: !Ref SensorsTable
+    events:
+      - http:
+          path: /sensors
+          method: POST
+          cors: true

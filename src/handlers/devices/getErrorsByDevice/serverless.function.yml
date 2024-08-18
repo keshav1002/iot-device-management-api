@@ -1,0 +1,21 @@
+functions:
+  getErrorsByDevice:
+    handler: src/handlers/devices/getErrorsByDevice/index.handler
+    name: ${self:service}-${sls:stage}-sensors-getErrorsByDevice
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:Query
+        Resource:
+          - !GetAtt SensorsTable.Arn
+          - Fn::Join:
+              - ''
+              - - !GetAtt SensorsTable.Arn
+                - '/index/ErrorsByDevice'
+    environment:
+      SENSORS_TABLE: !Ref SensorsTable
+    events:
+      - http:
+          path: /sensors/{id}/errors
+          method: GET
+          cors: true

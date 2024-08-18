@@ -1,0 +1,16 @@
+functions:
+  insertReading:
+    handler: src/handlers/readings/insertReading/index.handler
+    name: ${self:service}-${sls:stage}-sensors-insertReading
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt SensorsTable.Arn
+    environment:
+      SENSORS_TABLE: !Ref SensorsTable
+    events:
+      - http:
+          path: /sensors/{id}/reading
+          method: POST
+          cors: true

@@ -1,0 +1,21 @@
+functions:
+  getReadingsByError:
+    handler: src/handlers/readings/getReadingsByError/index.handler
+    name: ${self:service}-${sls:stage}-sensors-getReadingsByError
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:Query
+        Resource:
+          - !GetAtt SensorsTable.Arn
+          - Fn::Join:
+              - ''
+              - - !GetAtt SensorsTable.Arn
+                - '/index/ReadingsByError'
+    environment:
+      SENSORS_TABLE: !Ref SensorsTable
+    events:
+      - http:
+          path: /sensors/errors/{status}
+          method: GET
+          cors: true

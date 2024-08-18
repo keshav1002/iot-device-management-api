@@ -22,7 +22,14 @@ provider:
       stage: ${sls:stage}
 
 functions:
-  - ${file(./src/handlers/sensors/serverless.functions.yml):functions}
+  - ${file(./src/handlers/devices/deleteDevice/serverless.function.yml):functions}
+  - ${file(./src/handlers/devices/getDevice/serverless.function.yml):functions}
+  - ${file(./src/handlers/devices/getErrorsByDevice/serverless.function.yml):functions}
+  - ${file(./src/handlers/devices/insertDevice/serverless.function.yml):functions}
+  - ${file(./src/handlers/devices/updateDevice/serverless.function.yml):functions}
+  - ${file(./src/handlers/readings/getLatestDeviceReadings/serverless.function.yml):functions}
+  - ${file(./src/handlers/readings/getReadingsByError/serverless.function.yml):functions}
+  - ${file(./src/handlers/readings/insertReading/serverless.function.yml):functions}
 
 resources:
   - ${file(./resources/sensors/dynamodb.yml):resources}

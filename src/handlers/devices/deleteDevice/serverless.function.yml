@@ -1,0 +1,16 @@
+functions:
+  deleteDevice:
+    handler: src/handlers/devices/deleteDevice/index.handler
+    name: ${self:service}-${sls:stage}-sensors-deleteDevice
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt SensorsTable.Arn
+    environment:
+      SENSORS_TABLE: !Ref SensorsTable
+    events:
+      - http:
+          path: /sensors/{id}
+          method: DELETE
+          cors: true

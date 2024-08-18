@@ -1,0 +1,16 @@
+functions:
+  updateDevice:
+    handler: src/handlers/devices/updateDevice/index.handler
+    name: ${self:service}-${sls:stage}-sensors-updateDevice
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt SensorsTable.Arn
+    environment:
+      SENSORS_TABLE: !Ref SensorsTable
+    events:
+      - http:
+          path: /sensors/{id}
+          method: PUT
+          cors: true

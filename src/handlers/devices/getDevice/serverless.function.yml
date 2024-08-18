@@ -1,0 +1,16 @@
+functions:
+  getDevice:
+    handler: src/handlers/devices/getDevice/index.handler
+    name: ${self:service}-${sls:stage}-sensors-getDevice
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt SensorsTable.Arn
+    environment:
+      SENSORS_TABLE: !Ref SensorsTable
+    events:
+      - http:
+          path: /sensors/{id}
+          method: GET
+          cors: true
