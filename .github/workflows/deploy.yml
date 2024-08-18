@@ -38,6 +38,8 @@ jobs:
         run: npm run deploy-dev
 
       - name: Set base URL variable
+        env:
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         id: set_base_url
         run: |
           base_url=$(serverless info --stage dev | grep -m 1 'https://' | awk '{print $3}' | cut -d '/' -f 1-3)
