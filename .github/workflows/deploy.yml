@@ -37,7 +37,7 @@ jobs:
       - name: Set base URL variable
         id: set_base_url
         run: |
-          base_url=$(serverless info --stage dev | grep -m 1 'https://' | awk '{print $3}' | cut -d '/' -f 1-3)
+          base_url=$(npm run get-dev-base-url)
           echo "Base URL: $base_url"
           echo "::set-output name=base_url::$base_url"
 
