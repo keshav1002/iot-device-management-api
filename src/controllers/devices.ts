@@ -6,15 +6,14 @@ import { CONSTANTS } from '../shared/constants'
 import { createUpdateExpressions } from '../shared/util'
 import { DynamoDBConnector } from '../connector/dynamodb'
 
-const dynamoDbConnector = new DynamoDBConnector()
-const docClient = dynamoDbConnector.getClient()
-const sensorsTable = dynamoDbConnector.getSensorsTableName()
-
-export const getDeviceByDeviceId = async (params: Devices.DeviceId): Promise<Devices.Device[]> => {
+export const getDeviceByDeviceId = async (
+  params: Devices.DeviceId,
+  dynamoDbConnector: DynamoDBConnector,
+): Promise<Devices.Device[]> => {
   const { deviceId } = params
 
   const command = new QueryCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     KeyConditionExpression: `#${CONSTANTS.PARTITION_KEY} = :${CONSTANTS.PARTITION_KEY}`,
     ExpressionAttributeNames: {
       [`#${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PARTITION_KEY}`,
@@ -25,18 +24,21 @@ export const getDeviceByDeviceId = async (params: Devices.DeviceId): Promise<Dev
     ScanIndexForward: false,
   })
 
-  const result = await docClient.send(command)
+  const result = await dynamoDbConnector.getClient().send(command)
 
   return result.Items as Devices.Device[]
 }
 
-export const insertDevice = async (device: Devices.Device): Promise<Devices.DeviceId> => {
+export const insertDevice = async (
+  device: Devices.Device,
+  dynamoDbConnector: DynamoDBConnector,
+): Promise<Devices.DeviceId> => {
   const { DeviceLocation, DeviceName } = device
 
   const deviceId = randomUUID()
 
   const command = new PutCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     Item: {
       [`${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
       [`${CONSTANTS.SORT_KEY}`]: `${CONSTANTS.SK_DETAILS_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
@@ -46,14 +48,17 @@ export const insertDevice = async (device: Devices.Device): Promise<Devices.Devi
     },
   })
 
-  await docClient.send(command)
+  await dynamoDbConnector.getClient().send(command)
 
   return {
     deviceId,
   }
 }
 
-export const updateDevice = async (device: Devices.Device): Promise<Devices.DeviceId> => {
+export const updateDevice = async (
+  device: Devices.Device,
+  dynamoDbConnector: DynamoDBConnector,
+): Promise<Devices.DeviceId> => {
   const { DeviceId, DeviceLocation, DeviceName } = device
 
   const { updateExpression, expressionAttribute, expressionAttributeNames } =
@@ -63,7 +68,7 @@ export const updateDevice = async (device: Devices.Device): Promise<Devices.Devi
     })
 
   const command = new UpdateCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     Key: {
       [`${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${DeviceId}`,
       [`${CONSTANTS.SORT_KEY}`]: `${CONSTANTS.SK_DETAILS_PREFIX}${CONSTANTS.KEY_DELIM}${DeviceId}`,
@@ -73,34 +78,40 @@ export const updateDevice = async (device: Devices.Device): Promise<Devices.Devi
     ExpressionAttributeNames: expressionAttributeNames,
   })
 
-  await docClient.send(command)
+  await dynamoDbConnector.getClient().send(command)
 
   return {
     deviceId: DeviceId,
   }
 }
 
-export const deleteDevice = async (params: Devices.DeviceId): Promise<Devices.DeviceId> => {
+export const deleteDevice = async (
+  params: Devices.DeviceId,
+  dynamoDbConnector: DynamoDBConnector,
+): Promise<Devices.DeviceId> => {
   const { deviceId } = params
 
   const command = new DeleteCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     Key: {
       [`${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
       [`${CONSTANTS.SORT_KEY}`]: `${CONSTANTS.SK_DETAILS_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
     },
   })
 
-  await docClient.send(command)
+  await dynamoDbConnector.getClient().send(command)
 
   return { deviceId }
 }
 
-export const getErrorsByDevice = async (params: Devices.DeviceId): Promise<Devices.Device[]> => {
+export const getErrorsByDevice = async (
+  params: Devices.DeviceId,
+  dynamoDbConnector: DynamoDBConnector,
+): Promise<Devices.Device[]> => {
   const { deviceId } = params
 
   const command = new QueryCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     IndexName: `${CONSTANTS.LSI_ERRORS_BY_DEVICE}`,
     KeyConditionExpression: `${CONSTANTS.PARTITION_KEY} = :${CONSTANTS.PARTITION_KEY}`,
     ExpressionAttributeValues: {
@@ -108,7 +119,7 @@ export const getErrorsByDevice = async (params: Devices.DeviceId): Promise<Devic
     },
   })
 
-  const result = await docClient.send(command)
+  const result = await dynamoDbConnector.getClient().send(command)
 
   return result.Items as Devices.Device[]
 }

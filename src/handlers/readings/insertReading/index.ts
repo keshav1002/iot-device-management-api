@@ -4,6 +4,7 @@ import { insertReading } from '../../../controllers/readings'
 import { getReadingsBodyFromEvent } from '../../../shared/parser'
 import { errorResponse, response } from '../../../shared/responses'
 import { logger } from '../../../shared/logger'
+import { DynamoDBConnector } from '../../../connector/dynamodb'
 
 logger.appendPersistentKeys({
   serviceName: 'sensors',
@@ -26,7 +27,8 @@ const main: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayP
 
     const start = new Date().getTime()
 
-    await insertReading({ deviceId }, body)
+    const dynamoDbConnector = new DynamoDBConnector()
+    await insertReading({ deviceId }, body, dynamoDbConnector)
 
     const end = new Date().getTime()
     logger.info('Result', { duration: end - start })

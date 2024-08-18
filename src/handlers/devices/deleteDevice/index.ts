@@ -3,6 +3,7 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import { deleteDevice } from '../../../controllers/devices'
 import { errorResponse, response } from '../../../shared/responses'
 import { logger } from '../../../shared/logger'
+import { DynamoDBConnector } from '../../../connector/dynamodb'
 
 logger.appendPersistentKeys({
   serviceName: 'sensors',
@@ -20,7 +21,8 @@ const main: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayP
 
     const start = new Date().getTime()
 
-    await deleteDevice({ deviceId })
+    const dynamoDbConnector = new DynamoDBConnector()
+    await deleteDevice({ deviceId }, dynamoDbConnector)
 
     const end = new Date().getTime()
     logger.info('Result', { duration: end - start })

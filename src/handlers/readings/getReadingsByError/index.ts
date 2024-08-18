@@ -3,6 +3,7 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import { getReadingsByError } from '../../../controllers/readings'
 import { errorResponse, response } from '../../../shared/responses'
 import { logger } from '../../../shared/logger'
+import { DynamoDBConnector } from '../../../connector/dynamodb'
 
 logger.appendPersistentKeys({
   serviceName: 'sensors',
@@ -20,7 +21,8 @@ const main: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayP
 
     const start = new Date().getTime()
 
-    const items = await getReadingsByError({ ErrorStatus: errorStatus })
+    const dynamoDbConnector = new DynamoDBConnector()
+    const items = await getReadingsByError({ ErrorStatus: errorStatus }, dynamoDbConnector)
 
     const end = new Date().getTime()
     logger.info('Result', { duration: end - start })

@@ -1,7 +1,7 @@
 declare module 'devices' {
   namespace Devices {
     interface Device {
-      DeviceId: string
+      DeviceId?: string
       DeviceName: string
       DeviceLocation: string
     }

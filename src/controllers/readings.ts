@@ -5,17 +5,14 @@ import { Readings } from 'readings'
 import { CONSTANTS } from '../shared/constants'
 import { DynamoDBConnector } from '../connector/dynamodb'
 
-const dynamoDbConnector = new DynamoDBConnector()
-const docClient = dynamoDbConnector.getClient()
-const sensorsTable = dynamoDbConnector.getSensorsTableName()
-
 export const getLatestDeviceReadingsByDeviceId = async (
   params: Devices.DeviceId,
+  dynamoDbConnector: DynamoDBConnector,
 ): Promise<Devices.Device[]> => {
   const { deviceId } = params
 
   const command = new QueryCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     KeyConditionExpression: `${CONSTANTS.PARTITION_KEY} = :${CONSTANTS.PARTITION_KEY} and begins_with(${CONSTANTS.SORT_KEY}, :prefix)`,
     ExpressionAttributeValues: {
       [`:${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
@@ -25,18 +22,19 @@ export const getLatestDeviceReadingsByDeviceId = async (
     Limit: 10,
   })
 
-  const result = await docClient.send(command)
+  const result = await dynamoDbConnector.getClient().send(command)
 
   return result.Items as Devices.Device[]
 }
 
 export const getReadingsByError = async (
   params: Readings.ErrorStatus,
-): Promise<Devices.Device[]> => {
+  dynamoDbConnector: DynamoDBConnector,
+): Promise<Readings.Reading[]> => {
   const { ErrorStatus } = params
 
   const command = new QueryCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     IndexName: `${CONSTANTS.GSI_READINGS_BY_ERROR}`,
     KeyConditionExpression: `#${CONSTANTS.GSI_RE_PK} = :${CONSTANTS.GSI_RE_PK}`,
     ExpressionAttributeNames: {
@@ -47,14 +45,15 @@ export const getReadingsByError = async (
     },
   })
 
-  const result = await docClient.send(command)
+  const result = await dynamoDbConnector.getClient().send(command)
 
-  return result.Items as Devices.Device[]
+  return result.Items as Readings.Reading[]
 }
 
 export const insertReading = async (
   device: Devices.DeviceId,
   reading: Readings.Reading,
+  dynamoDbConnector: DynamoDBConnector,
 ): Promise<Devices.DeviceId> => {
   const { deviceId } = device
   const { TTL, Temp, ErrorStatus } = reading
@@ -74,11 +73,11 @@ export const insertReading = async (
   }
 
   const command = new PutCommand({
-    TableName: sensorsTable,
+    TableName: dynamoDbConnector.getSensorsTableName(),
     Item: updateItem,
   })
 
-  await docClient.send(command)
+  await dynamoDbConnector.getClient().send(command)
 
   return {
     deviceId,
