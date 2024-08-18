@@ -9,6 +9,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { randomUUID } from 'crypto'
 
 import { Devices } from 'devices'
+import { CONSTANTS } from '../shared/constants'
 import { createUpdateExpressions } from '../shared/util'
 
 const client = new DynamoDBClient({})
@@ -23,12 +24,12 @@ export const getDeviceByDeviceId = async (params: Devices.DeviceId): Promise<Dev
 
   const command = new QueryCommand({
     TableName: sensorsTable,
-    KeyConditionExpression: '#PK = :PK',
+    KeyConditionExpression: `#${CONSTANTS.PARTITION_KEY} = :${CONSTANTS.PARTITION_KEY}`,
     ExpressionAttributeNames: {
-      '#PK': 'PK',
+      [`#${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PARTITION_KEY}`,
     },
     ExpressionAttributeValues: {
-      ':PK': `DEVICE#${deviceId}`,
+      [`:${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
     },
     ScanIndexForward: false,
   })
@@ -46,8 +47,8 @@ export const insertDevice = async (device: Devices.Device): Promise<Devices.Devi
   const command = new PutCommand({
     TableName: sensorsTable,
     Item: {
-      PK: `DEVICE#${deviceId}`,
-      SK: `#DETAILS#${deviceId}`,
+      [`${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
+      [`${CONSTANTS.SORT_KEY}`]: `${CONSTANTS.SK_DETAILS_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
       DeviceId: deviceId,
       DeviceName,
       DeviceLocation,
@@ -73,13 +74,12 @@ export const updateDevice = async (device: Devices.Device): Promise<Devices.Devi
   const command = new UpdateCommand({
     TableName: sensorsTable,
     Key: {
-      PK: `DEVICE#${DeviceId}`,
-      SK: `#DETAILS#${DeviceId}`,
+      [`${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${DeviceId}`,
+      [`${CONSTANTS.SORT_KEY}`]: `${CONSTANTS.SK_DETAILS_PREFIX}${CONSTANTS.KEY_DELIM}${DeviceId}`,
     },
     UpdateExpression: `SET ${updateExpression.join(', ')}`,
     ExpressionAttributeValues: expressionAttribute,
     ExpressionAttributeNames: expressionAttributeNames,
-    ReturnValues: 'ALL_NEW',
   })
 
   await docClient.send(command)
@@ -95,8 +95,8 @@ export const deleteDevice = async (params: Devices.DeviceId): Promise<Devices.De
   const command = new DeleteCommand({
     TableName: sensorsTable,
     Key: {
-      PK: `DEVICE#${deviceId}`,
-      SK: `#DETAILS#${deviceId}`,
+      [`${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
+      [`${CONSTANTS.SORT_KEY}`]: `${CONSTANTS.SK_DETAILS_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
     },
   })
 
@@ -110,10 +110,10 @@ export const getErrorsByDevice = async (params: Devices.DeviceId): Promise<Devic
 
   const command = new QueryCommand({
     TableName: sensorsTable,
-    IndexName: 'ErrorsByDevice',
-    KeyConditionExpression: 'PK = :PK',
+    IndexName: `${CONSTANTS.LSI_ERRORS_BY_DEVICE}`,
+    KeyConditionExpression: `${CONSTANTS.PARTITION_KEY} = :${CONSTANTS.PARTITION_KEY}`,
     ExpressionAttributeValues: {
-      ':PK': `DEVICE#${deviceId}`,
+      [`:${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
     },
   })
 

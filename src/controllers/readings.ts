@@ -3,6 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 import { Devices } from 'devices'
 import { Readings } from 'readings'
+import { CONSTANTS } from '../shared/constants'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
@@ -18,10 +19,10 @@ export const getLatestDeviceReadingsByDeviceId = async (
 
   const command = new QueryCommand({
     TableName: sensorsTable,
-    KeyConditionExpression: 'PK = :PK and begins_with(SK, :prefix)',
+    KeyConditionExpression: `${CONSTANTS.PARTITION_KEY} = :${CONSTANTS.PARTITION_KEY} and begins_with(${CONSTANTS.SORT_KEY}, :prefix)`,
     ExpressionAttributeValues: {
-      ':PK': `DEVICE#${deviceId}`,
-      ':prefix': 'READING',
+      [`:${CONSTANTS.PARTITION_KEY}`]: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
+      ':prefix': `${CONSTANTS.SK_READING_PREFIX}`,
     },
     ScanIndexForward: false, // Descending Order
     Limit: 10,
@@ -39,13 +40,13 @@ export const getReadingsByError = async (
 
   const command = new QueryCommand({
     TableName: sensorsTable,
-    IndexName: 'ReadingsByError',
-    KeyConditionExpression: '#ErrorStatus = :ErrorStatus',
+    IndexName: `${CONSTANTS.GSI_READINGS_BY_ERROR}`,
+    KeyConditionExpression: `#${CONSTANTS.GSI_RE_PK} = :${CONSTANTS.GSI_RE_PK}`,
     ExpressionAttributeNames: {
-      '#ErrorStatus': 'ErrorStatus',
+      [`#${CONSTANTS.GSI_RE_PK}`]: `${CONSTANTS.GSI_RE_PK}`,
     },
     ExpressionAttributeValues: {
-      ':ErrorStatus': ErrorStatus,
+      [`:${CONSTANTS.GSI_RE_PK}`]: ErrorStatus,
     },
   })
 
@@ -65,8 +66,8 @@ export const insertReading = async (
   const skValue = new Date(ttl * 1000).toISOString()
 
   let updateItem = {
-    PK: `DEVICE#${deviceId}`,
-    SK: `READING#${skValue}`,
+    PK: `${CONSTANTS.PK_PREFIX}${CONSTANTS.KEY_DELIM}${deviceId}`,
+    SK: `${CONSTANTS.SK_READING_PREFIX}${CONSTANTS.KEY_DELIM}${skValue}`,
     Temp: Temp,
     TTL: TTL,
   }
