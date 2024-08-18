@@ -14,8 +14,8 @@ describe('Test if device CRUD logic works correctly', () => {
   it('should create a new device', async () => {
     const { deviceId } = await insertDevice(
       {
-        DeviceLocation: 'Test Device Location',
-        DeviceName: 'Test Device',
+        DeviceName: 'Unit Test Device',
+        DeviceLocation: 'Unit Test Device Location',
       },
       DynamoDbConnector,
     )
@@ -37,8 +37,8 @@ describe('Test if device CRUD logic works correctly', () => {
     const response = await updateDevice(
       {
         DeviceId: newDeviceId,
-        DeviceName: 'Test Device v2',
-        DeviceLocation: 'Test Device Location v2',
+        DeviceName: 'Unit Test Device v2',
+        DeviceLocation: 'Unit Test Device Location v2',
       },
       DynamoDbConnector,
     )

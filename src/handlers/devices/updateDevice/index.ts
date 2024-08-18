@@ -41,7 +41,7 @@ const main: APIGatewayProxyHandler = async (event, context): Promise<APIGatewayP
     const end = new Date().getTime()
     logger.info('Result', { duration: end - start })
 
-    return response({ message: 'Device Updated Successfully!' }, 201)
+    return response({ message: 'Device Updated Successfully!' }, 200)
   } catch (error) {
     return errorResponse((error as Error).message)
   }
