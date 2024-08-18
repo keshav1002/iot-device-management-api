@@ -32,7 +32,7 @@ functions:
   - ${file(./src/handlers/devices/getErrorsByDevice/serverless.function.yml):functions}
   - ${file(./src/handlers/devices/insertDevice/serverless.function.yml):functions}
   - ${file(./src/handlers/devices/updateDevice/serverless.function.yml):functions}
-  - ${file(./src/handlers/readings/getLatestDeviceReadings/serverless.function.yml):functions}
+  - ${file(./src/handlers/readings/getLatestReadings/serverless.function.yml):functions}
   - ${file(./src/handlers/readings/getReadingsByError/serverless.function.yml):functions}
   - ${file(./src/handlers/readings/insertReading/serverless.function.yml):functions}
 

@@ -1,7 +1,7 @@
 functions:
-  getLatestDeviceReadings:
-    handler: src/handlers/readings/getLatestDeviceReadings/index.handler
-    name: ${self:service}-${sls:stage}-sensors-getLatestDeviceReadings
+  getLatestReadings:
+    handler: src/handlers/readings/getLatestReadings/index.handler
+    name: ${self:service}-${sls:stage}-sensors-getLatestReadings
     iamRoleStatements:
       - Effect: 'Allow'
         Action:
