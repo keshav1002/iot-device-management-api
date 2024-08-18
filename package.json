@@ -8,9 +8,7 @@
     "test:unit": "jest tests/unit",
     "test:unit:coverage": "jest --coverage tests/unit",
     "deploy-dev": "serverless deploy --stage dev",
-    "deploy-prod": "serverless deploy --stage prod",
-    "get-dev-base-url": "serverless info --stage dev | grep -m 1 'https://' | awk '{print $3}' | cut -d '/' -f 1-3",
-    "get-prod-base-url": "serverless info --stage prod | grep -m 1 'https://' | awk '{print $3}' | cut -d '/' -f 1-3"
+    "deploy-prod": "serverless deploy --stage prod"
   },
   "keywords": [],
   "author": "",
