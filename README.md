@@ -8,8 +8,9 @@
 - [High-Level Architecture and Database Design](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#high-level-architecture-and-database-design)
 - [Unit test](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#unit-test)
 - [Integration test](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#integration-test)
-- CI/CD
-- Sonarcloud
+- [CI/CD](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#cicd)
+- [Sonarcloud](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#sonarcloud)
+- [Logs](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#logs)
 
 ## Getting Started
 
@@ -62,7 +63,7 @@ To deploy the API to the `dev` stage run the following command.
 npm run deploy-dev
 ```
 
-This should deploy the API to the dev stage and produce an API gateway URL which makes the REST API ready-to-use. Refer to the CI/CD section for streamlined deployments.
+This should deploy the API to the dev stage and produce an API gateway URL which makes the REST API ready-to-use. Refer to the [CI/CD](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#cicd) section for streamlined deployments.
 
 ## Scenario: Smart Building Temperature Monitoring System
 
@@ -147,11 +148,13 @@ _Figure 2_
 Unit tests have been configured for this project using [jest](https://jestjs.io/). The local DynamoDB server is utilized to perform the unit tests. Thereby the unit tests can only be run locally as of now. It tests if the core logic in the controllers are working as intended.
 
 To perform the unit tests execute the following command,
+
 ```
 npm run test:unit
 ```
 
 You can also run the following command to check the coverage.
+
 ```
 npm run test:unit:coverage
 ```
@@ -165,9 +168,47 @@ _Figure 3_
 Integration tests have also been configured using the jest library along with the help of [supertest](https://www.npmjs.com/package/supertest) library. The integration tests checks if the deployed endpoints work as expected. This validates if the integrations between API Gateway, Lambda and DynamoDB are working as expected end-to-end.
 
 To perform the integration tests execute the following command,
+
 ```
-test:integration
+npm run test:integration
 ```
 
 ## CI/CD
 
+The CI/CD for this project has been configured using [Github Actions](https://github.com/keshav1002/iot-device-management-api/actions). The deployment workflow file can be found under `.github/workflows/deploy.yml`.
+
+Every time theres a push to the main branch the workflow is triggered and it deploys to the `dev` stage automatically. There's also a manual approval dispatch event that promotes the deployment to the `prod` stage.
+
+The manual approval is added to prevent any accidental deployments to prod. Integration tests have been configured within the pipeline. The tests run automatically after the deployment. After the deployment to `dev` and if the integration tests for that environment passes, then its a good indication to promote that deployment to `prod`. Manual testing can also be done before promoting to `prod`. A screenshot of the CI/CD pipeline running in the `dev` stage can be seen below. (_Figure 4_)
+
+![CI/CD Screenshot](https://github.com/keshav1002/iot-device-management-api/blob/main/.github/images/ci-cd-screenshot.png?raw=true 'CI/CD Screenshot')
+
+_Figure 4_
+
+## Sonarcloud
+
+Sonarcloud has also been configured for this repo, the analysis can be accessed using this [link](https://sonarcloud.io/summary/overall?id=keshav1002_iot-device-management-api). The overall quality gate indicates a pass status with no major issues.
+
+![Sonarcloud Screenshot](https://github.com/keshav1002/iot-device-management-api/blob/main/.github/images/sonarcloud-screenshot.png?raw=true 'Sonarcloud Screenshot')
+
+_Figure 5_
+
+## Logs
+
+A custom logger is implemented within the API to record useful metrics. The logger was implemented using the [@aws-lambda-powertools/logger](https://www.npmjs.com/package/@aws-lambda-powertools/logger) library.
+
+The logger records DynamoDB response times for all APIs, this leads to useful insights through queries in the Cloudwatch Logs Insights portal. A sample query can be found below.
+
+```
+fields @timestamp, handler, cold_start, duration
+| filter service='iot-device-management' and message='Result'
+| sort @timestamp desc
+| stats min(duration), avg(duration), max(duration) by handler
+
+```
+
+![Cloudwatch Logs Screenshot](https://github.com/keshav1002/iot-device-management-api/blob/main/.github/images/cloudwatch-logs-screenshot.png?raw=true 'Cloudwatch Logs Screenshot')
+
+_Figure 6_
+
+The logger implementation can be extended to record varied custom metrics in the future.
