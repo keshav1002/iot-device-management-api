@@ -3,7 +3,7 @@
 ## Table of Contents
 
 - [Getting Started](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#getting-started)
-- Scenario: Smart Building Temperature Monitoring System
+- [Scenario: Smart Building Temperature Monitoring System](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#getting-started)
 - High Level Architecture and Database Design
 - API Documentation
 - Unit tests
@@ -41,7 +41,7 @@ A convenient script can also be found under the same folder `scripts/create-tabl
 node create-table.mjs
 ```
 
-Finally you can refer to the `.env.sample` file to configure the required environment variables for the API to run locally. You can simply rename the file to `.env` and everything should work fine. 
+Finally you can refer to the `.env.sample` file to configure the required environment variables for the API to run locally. You can simply rename the file to `.env` and everything should work fine.
 
 If needed do change the `DYNAMODB_LOCAL_ENDPOINT`/ `DYNAMODB_LOCAL_REGION` or the `DYNAMODB_LOCAL_SENSORS_TABLE_NAME` if you have done any custom changes.
 
@@ -62,7 +62,6 @@ npm run deploy-dev
 ```
 
 This should deploy the API to the dev stage and produce an API gateway URL which makes the REST API ready-to-use. Refer to the CI/CD section for streamlined deployments.
-
 
 ## Scenario: Smart Building Temperature Monitoring System
 
@@ -109,3 +108,5 @@ Imagine a smart building equipped with various IoT devices that monitor temperat
    - **API Action:** The management deletes the device record using the API, ensuring the system's data remains current and relevant.
 
 This API-driven solution enables real-time monitoring and management of IoT devices in a smart building environment. It helps ensure that critical areas maintain optimal temperature levels and allows the building management to respond quickly to any anomalies, enhancing safety and operational efficiency.
+
+## High Level Architecture and Database Design
