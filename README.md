@@ -6,13 +6,14 @@
 - [Scenario: Smart Building Temperature Monitoring System](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#scenario-smart-building-temperature-monitoring-system)
 - [API Documentation](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#api-documentation)
 - [High-Level Architecture and Database Design](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#high-level-architecture-and-database-design)
-- [Unit tests](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#unit-tests)
-- Integration tests
+- [Unit test](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#unit-test)
+- [Integration test](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#integration-test)
 - CI/CD
+- Sonarcloud
 
 ## Getting Started
 
-The API was built using the [Serverless Framework](https://www.serverless.com/) v4. It was built using NodeJS v20 and Typescript v5 and can be deployed to the AWS cloud. To get started clone the repo and make sure the following prerequisites are installed in your machine.
+The API was built using the [Serverless Framework](https://www.serverless.com/) v4, NodeJS v20 and Typescript v5 and can be deployed to the AWS cloud. To get started clone the repo and make sure the following prerequisites are installed in your machine.
 
 ### Prerequisites
 
@@ -141,4 +142,32 @@ _Figure 2_
 
 - **Local Secondary Index (LSI):** A LSI `ErrorsByDevice` has also been configured. LSIs are useful in scenarios where the same partition key as the main table can be used but a different sort key is required. In this scenario the `ErrorStatus` attribute has been configured as a sort key along with `PK` as the partition key for the LSI. This allows for faster queries for scenarios such as figuring out how many errors have been logged by a particular device in the system ([Use Case 3](https://github.com/keshav1002/iot-device-management-api/tree/main?tab=readme-ov-file#use-cases)).
 
-## Unit tests
+## Unit Test
+
+Unit tests have been configured for this project using [jest](https://jestjs.io/). The local DynamoDB server is utilized to perform the unit tests. Thereby the unit tests can only be run locally as of now. It tests if the core logic in the controllers are working as intended.
+
+To perform the unit tests execute the following command,
+```
+npm run test:unit
+```
+
+You can also run the following command to check the coverage.
+```
+npm run test:unit:coverage
+```
+
+![Unit Test Coverage](https://github.com/keshav1002/iot-device-management-api/blob/main/.github/images/unit-test-coverage.png?raw=true 'Unit Test Coverage')
+
+_Figure 3_
+
+## Integration Test
+
+Integration tests have also been configured using the jest library along with the help of [supertest](https://www.npmjs.com/package/supertest) library. The integration tests checks if the deployed endpoints work as expected. This validates if the integrations between API Gateway, Lambda and DynamoDB are working as expected end-to-end.
+
+To perform the integration tests execute the following command,
+```
+test:integration
+```
+
+## CI/CD
+
