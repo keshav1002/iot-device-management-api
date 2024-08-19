@@ -2,7 +2,13 @@
 
 ## Table of Contents
 
-
+- [Getting Started](/iot-device-management-api?tab=readme-ov-file#getting-started)
+- Scenario: Smart Building Temperature Monitoring System
+- High Level Architecture and Database Design
+- API Documentation
+- Unit tests
+- Integration tests
+- CI/CD
 
 ## Getting Started
 
