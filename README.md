@@ -185,6 +185,12 @@ The manual approval is added to prevent any accidental deployments to prod. Inte
 
 _Figure 4_
 
+There are 3 main secret values that need to be configured in your Github repository in order for the Github Actions pipeline to work correctly. If you're unsure how to configure the secrets you can follow [this guide](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions).
+
+1. `AWS_ACCESS_KEY_ID` - Required to deploy to your AWS account. Ensure only the necessary permissions are granted and the credentials are generated. You can follow [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) to generate the access and secret access keys.
+2. `AWS_SECRET_ACCESS_KEY` - Will be generated along with the above key. Both are required.
+3. `SERVERLESS_ACCESS_KEY` - Since Serverless Framework v4 a serverless access key is required to do deployments using the Serverless CLI. You can follow [this guide](https://www.serverless.com/framework/docs/guides/dashboard/cicd/running-in-your-own-cicd#create-an-access-key-in-the-serverless-framework-dashboard) to generate your own serverless access key.
+
 ## Sonarcloud
 
 Sonarcloud has also been configured for this repo, the analysis can be accessed using this [link](https://sonarcloud.io/summary/overall?id=keshav1002_iot-device-management-api). The overall quality gate indicates a pass status with no major issues.
