@@ -6,7 +6,7 @@
 - [Scenario: Smart Building Temperature Monitoring System](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#scenario-smart-building-temperature-monitoring-system)
 - [API Documentation](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#api-documentation)
 - [High-Level Architecture and Database Design](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#high-level-architecture-and-database-design)
-- Unit tests
+- [Unit tests](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#unit-tests)
 - Integration tests
 - CI/CD
 
@@ -111,6 +111,10 @@ This API-driven solution enables real-time monitoring and management of IoT devi
 
 ## API Documentation
 
+There are 4 main CRUD API endpoints to facilitate the scenario of adding, retrieving, updating and deleting a IoT sensor device. Furthermore, there are 4 more API endpoints to facilitate some of the other use cases mentioned above.
+
+The full documentation has been published as a Postman collection which can be found [here](https://documenter.getpostman.com/view/2375834/2sA3s9Docr). You can also import the collection and get started yourself.
+
 ## High-Level Architecture and Database Design
 
 The diagram below (_Figure 1_) shows the high-level architecture of the developed REST API. Since it utilizes the serverless framework the API is built using Lambda functions and API gateway. Each API endpoint corresponds to a particular lambda function. The [Lambda proxy integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html) is used to connect with the API gateway.
@@ -136,3 +140,5 @@ _Figure 2_
 - **Global Secondary Index (GSI):** A GSI `ReadingsByError` has been configured on the table using the `ErrorStatus` attribute as the partition key. This enables queries such as figuring out the devices that have been emitting a "High" error status easily ([Use Case 3](https://github.com/keshav1002/iot-device-management-api/tree/main?tab=readme-ov-file#use-cases)), without having the need to performing complex scans and filters on the main table.
 
 - **Local Secondary Index (LSI):** A LSI `ErrorsByDevice` has also been configured. LSIs are useful in scenarios where the same partition key as the main table can be used but a different sort key is required. In this scenario the `ErrorStatus` attribute has been configured as a sort key along with `PK` as the partition key for the LSI. This allows for faster queries for scenarios such as figuring out how many errors have been logged by a particular device in the system ([Use Case 3](https://github.com/keshav1002/iot-device-management-api/tree/main?tab=readme-ov-file#use-cases)).
+
+## Unit tests
