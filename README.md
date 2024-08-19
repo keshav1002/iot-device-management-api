@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-- [Getting Started](/iot-device-management-api?tab=readme-ov-file#getting-started)
+- [Getting Started](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#getting-started)
 - Scenario: Smart Building Temperature Monitoring System
 - High Level Architecture and Database Design
 - API Documentation
