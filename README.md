@@ -3,9 +3,9 @@
 ## Table of Contents
 
 - [Getting Started](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#getting-started)
-- [Scenario: Smart Building Temperature Monitoring System](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#getting-started)
-- High Level Architecture and Database Design
-- API Documentation
+- [Scenario: Smart Building Temperature Monitoring System](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#scenario-smart-building-temperature-monitoring-system)
+- [API Documentation](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#api-documentation)
+- [High-Level Architecture and Database Design](https://github.com/keshav1002/iot-device-management-api?tab=readme-ov-file#high-level-architecture-and-database-design)
 - Unit tests
 - Integration tests
 - CI/CD
@@ -109,4 +109,30 @@ Imagine a smart building equipped with various IoT devices that monitor temperat
 
 This API-driven solution enables real-time monitoring and management of IoT devices in a smart building environment. It helps ensure that critical areas maintain optimal temperature levels and allows the building management to respond quickly to any anomalies, enhancing safety and operational efficiency.
 
-## High Level Architecture and Database Design
+## API Documentation
+
+## High-Level Architecture and Database Design
+
+The diagram below (_Figure 1_) shows the high-level architecture of the developed REST API. Since it utilizes the serverless framework the API is built using Lambda functions and API gateway. Each API endpoint corresponds to a particular lambda function. The [Lambda proxy integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html) is used to connect with the API gateway.
+
+Each lambda function is also connected to its own Cloudwatch log group. The application logs as well as metrics will be captured here. Furthermore permissions for each lambda function to write to Cloudwatch as well read/write to the DynamoDB database and its indexes is configured using IAM roles. Each function has its own role. This is configured using the [serverless-iam-roles-per-function plugin](https://www.serverless.com/plugins/serverless-iam-roles-per-function). Having a role for each function ensures that only the fine-grained necessary permissions are granted for each lambda function thereby enhancing security.
+
+![High-Level Architecture](https://github.com/keshav1002/iot-device-management-api/blob/main/.github/images/iot-api-architecture.jpg?raw=true 'High-Level Architecture')
+
+_Figure 1_
+
+The main database utilized for this API is DynamoDB. DynamoDB is a serverless, NoSQL, fully managed database with single-digit millisecond performance at any scale. This makes it an idea choice for scenarios such as IoT sensors, as they tend to produce high volumes of data and require highly performant databases for optimized read and write operations.
+
+The [single-table design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/) philosophy of DynamoDB has been utilized to design the table for this scenario. A single-table called "sensors" will be utilized to store both device metadata and its readings. The main reason for using a single table in DynamoDB is to retrieve multiple, heterogenous item types using a single request. This is beneficial in this scenario as we can retrieve both device metadata and readings from the sensor in one-shot using a single query. The design along with sample data can be found in the diagram below (_Figure 2_).
+
+![DynamoDB Table Design](https://github.com/keshav1002/iot-device-management-api/blob/main/.github/images/dynamodb-table-design.png?raw=true 'DynamoDB Table Design')
+
+_Figure 2_
+
+### Database Keys and Indexes
+
+- **Composite Primary Key:** The primary key for this table has been designed as a composite key consisting of the partition key and sort key. The partition key is designed to contain a `DEVICE` label followed by a delimiter `#` and a unique ID value. The sort key is heterogenous. It could either have a `DETAILS` label and the device ID to denote that this record contains device metadata. or it can contain a `READING` label and the timestamp to denote that this record contains an actual reading. Having such keys with delimiters allows for easier querying and to differentiate between record types.
+
+- **Global Secondary Index (GSI):** A GSI `ReadingsByError` has been configured on the table using the `ErrorStatus` attribute as the partition key. This enables queries such as figuring out the devices that have been emitting a "High" error status easily ([Use Case 3](https://github.com/keshav1002/iot-device-management-api/tree/main?tab=readme-ov-file#use-cases)), without having the need to performing complex scans and filters on the main table.
+
+- **Local Secondary Index (LSI):** A LSI `ErrorsByDevice` has also been configured. LSIs are useful in scenarios where the same partition key as the main table can be used but a different sort key is required. In this scenario the `ErrorStatus` attribute has been configured as a sort key along with `PK` as the partition key for the LSI. This allows for faster queries for scenarios such as figuring out how many errors have been logged by a particular device in the system ([Use Case 3](https://github.com/keshav1002/iot-device-management-api/tree/main?tab=readme-ov-file#use-cases)).
