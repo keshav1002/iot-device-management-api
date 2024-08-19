@@ -1,7 +1,7 @@
 {
   "name": "iot-device-management-api",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "0.0.1",
+  "main": "",
   "scripts": {
     "start": "serverless offline start --reloadHandler",
     "test:integration": "jest tests/integration",
@@ -10,10 +10,15 @@
     "deploy-dev": "serverless deploy --stage dev",
     "deploy-prod": "serverless deploy --stage prod"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "serverless",
+    "aws",
+    "nodejs",
+    "typescript"
+  ],
+  "author": "Keshav Kumaresan <keshavkumaresan1002@gmail.com>",
+  "license": "MIT",
+  "description": "Repository for maintaining a IoT Device Management API. Built using the Serverless Framework & Typescript. Built for AWS.",
   "devDependencies": {
     "@serverless/typescript": "3.30.1",
     "@types/aws-lambda": "^8.10.143",
